@@ -10,3 +10,4 @@ void libera_matrici(char *m_parole[], char *m_def[], int num_righe);
 
 #endif // GESTIONE_MEMORIA_H_INCLUDED
 
+
