@@ -131,5 +131,15 @@ int controlla_vittoria(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne) {
             if (griglia[i][j] == '_') return 0;        // ritorna 0 se non tutte le lettere sono state scoperte
         }
     }
-    return 1; // Vittoria!
+    return 1;                                         // Vittoria!
+}
+int riga_e_completata(char griglia[MAX_DIM][MAX_DIM], int riga, int colonne) {
+    int j;
+    for (j = 0; j < colonne; j++) {
+        // Se trovo un buco ('_'), la riga NON è completa
+        if (griglia[riga][j] == '_') {
+            return 0;
+        }
+    }                                                 // Se arrivo qui, non ho trovato buchi: la riga è completa
+    return 1;
 }
