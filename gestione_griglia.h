@@ -13,4 +13,6 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
 
 int controlla_vittoria(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne);        // Controlla se ci sono ancora trattini '_' nella griglia
                                                                                        // Restituisce 1 se il gioco è finito (vittoria), 0 se continua
+
+int riga_e_completata(char griglia[MAX_DIM][MAX_DIM], int riga_da_controllare, int num_colonne);  //Controlla se una singola riga è già finita
 #endif // GESTIONE_GRIGLIA_H_INCLUDED
