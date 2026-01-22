@@ -15,24 +15,26 @@ int estrai_parole_dal_file(const char *nome_file, int lunghezza_cercata, int max
     int tentativi = 0;
     int i, j, k, duplicato;
 
-    //  Apertura File
+    // 1. Apertura File 
     fp = fopen(nome_file, "r");
     if (fp == NULL) {
         printf("Errore: Impossibile aprire il file '%s'.\n", nome_file);
         return 0; // Restituisce 0 parole trovate
     }
 
+    // 2. Conta le righe totali per sapere il range del random
     int righe_totali = 0;
-    while (fgets(dummy_buffer, LUNGHEZZA_MAX_RIGA, fp) != NULL) {              // Conta le righe totali per sapere il range del random
+    while (fgets(dummy_buffer, LUNGHEZZA_MAX_RIGA, fp) != NULL) {
         righe_totali++;
     }
 
     int coppie_totali = righe_totali / 2;
     if (coppie_totali < max_parole_da_trovare) {
         printf("Attenzione: Il file contiene poche parole (%d coppie).\n", coppie_totali);
+        // Non usciamo, proviamo a prendere quello che c'è
     }
 
-    // Ciclo di estrazione
+    // 3. Ciclo di estrazione
     printf("Sto cercando %d parole di %d lettere nel file...\n", max_parole_da_trovare, lunghezza_cercata);
 
     while (parole_inserite < max_parole_da_trovare) {
@@ -49,7 +51,7 @@ int estrai_parole_dal_file(const char *nome_file, int lunghezza_cercata, int max
             fgets(dummy_buffer, LUNGHEZZA_MAX_RIGA, fp);
         }
 
-        // Lettura Definizione e Parola
+        // Leggi Definizione e Parola
         if (fgets(temp_def, LUNGHEZZA_MAX_RIGA, fp) == NULL) break;
         if (fgets(temp_parola, 100, fp) == NULL) break;
 
@@ -84,7 +86,7 @@ int estrai_parole_dal_file(const char *nome_file, int lunghezza_cercata, int max
         tentativi++;
     }
 
-    // 4. Chiusura File (Fondamentale chiudere qui ciò che abbiamo aperto qui)
+    // 4. Chiusura File
     fclose(fp);
 
     return parole_inserite; // Restituiamo al main quante ne abbiamo trovate
