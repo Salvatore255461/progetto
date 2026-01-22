@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h> // aggiungo questa libreria per avere la generazione casuale
+#include <stdlib.h> // Serve per rand()
 #include "gestione_griglia.h"
 
-
-
 char mio_toupper(char c) {                            // Trasforma una lettera minuscola in maiuscola sottraendo 32 dal codice ASCII.
-    if (c >= 'a' && c <= 'z') {                       // Se è già maiuscola o è un simbolo, la lascia invariata.
+    if (c >= 'a' && c <= 'z') {
         return c - 32;
     }
     return c;
@@ -57,19 +55,45 @@ void riempi_griglia_con_parole(char griglia[MAX_DIM][MAX_DIM], char *matrice_par
     }
 }
 
-void nascondi_lettere_casuali(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne) {
-    int i, j;
+void applica_difficolta_griglia(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne, int livello) {
+    int i;
+    int lettere_da_mantenere;
+    int lettere_da_nascondere;
+    int nascoste_finora;
+    int indice_casuale;
+
     for (i = 0; i < righe; i++) {
-        for (j = 0; j < colonne; j++) {
-            // Genera numero tra 0 e 99. Se < 60 (60%), nascondi.
-            if ((rand() % 100) < 60) {
-                griglia[i][j] = '_';
+
+        // 1. Calcolo del numero di lettere da rivelare in base al tipo di difficoltà
+        if (livello == 1) {
+            // FACILE: Metà delle lettere (divisione intera approssima per difetto)
+            lettere_da_mantenere = colonne / 2;
+        }
+        else if (livello == 2) {
+            // NORMALE: Fisse 3 lettere
+            lettere_da_mantenere = 3;
+        }
+        else {
+            // DIFFICILE:(tutto nascosto)
+            lettere_da_mantenere = 0;
+        }
+
+        // Calcoliamo quante caselle dobbiamo trasformare in '_'
+        lettere_da_nascondere = colonne - lettere_da_mantenere;
+        nascoste_finora = 0;
+
+        // 2. CICLO PER NASCONDERE LE LETTERE
+        while (nascoste_finora < lettere_da_nascondere) {
+            indice_casuale = rand() % colonne; // Scegli una colonna a caso
+
+            // Se la casella non è già stata nascosta, la nascondiamo ora
+            if (griglia[i][indice_casuale] != '_') {
+                griglia[i][indice_casuale] = '_';
+                nascoste_finora++;
             }
         }
     }
 }
-
-// parte di interazione con l'utente e il gioco;
 
 int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[], int riga, char *input) {
     // 1. Validazione
@@ -88,8 +112,11 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
     if (len_input == 1) {
         char lettera = input[0];
 
-        for (j = 0; j < len_soluzione; j++) {                     // Scorriamo la parola corretta e la confrontiamo la lettera
-            if (mio_toupper(parola_soluzione[j]) == mio_toupper(lettera)) {    // Se corrisponde e la casella era nascosta ('_'), la scopriamo
+        // Scorriamo la parola corretta
+        for (j = 0; j < len_soluzione; j++) {
+            // Confrontiamo usando la nostra funzione manuale
+            if (mio_toupper(parola_soluzione[j]) == mio_toupper(lettera)) {
+                // Se corrisponde e la casella era nascosta ('_'), la scopriamo
                 if (griglia[riga][j] == '_') {
                     griglia[riga][j] = parola_soluzione[j];
                     modifiche++;
@@ -101,11 +128,12 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
     else {
         int uguali = 1; // Flag: 1 = vero, 0 = falso
 
-        if (len_input != len_soluzione) {            // Se le lunghezze sono diverse, le parole sono sicuramente diverse
+        // Se le lunghezze sono diverse, le parole sono sicuramente diverse
+        if (len_input != len_soluzione) {
             uguali = 0;
         } else {
-                    
-            for (j = 0; j < len_soluzione; j++) {       // Confronto carattere per carattere
+            // Confronto manuale carattere per carattere
+            for (j = 0; j < len_soluzione; j++) {
                 if (mio_toupper(parola_soluzione[j]) != mio_toupper(input[j])) {
                     uguali = 0;
                     break;
@@ -113,7 +141,8 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
             }
         }
 
-        if (uguali == 1) {        // Ho indovinato! Scopriamo tutta la riga
+        if (uguali == 1) {
+            // Ha indovinato! Scopriamo tutta la riga
             for (j = 0; j < len_soluzione; j++) {
                 griglia[riga][j] = parola_soluzione[j];
             }
@@ -121,18 +150,21 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
         }
     }
 
-    return modifiche; // Restituisce >0 se abbiamo scoperto qualcosa
+    return modifiche;         // Restituisce > 0 se abbiamo scoperto qualcosa
 }
 
 int controlla_vittoria(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne) {
     int i, j;
     for (i = 0; i < righe; i++) {
         for (j = 0; j < colonne; j++) {
-            if (griglia[i][j] == '_') return 0;        // ritorna 0 se non tutte le lettere sono state scoperte
+            // Se troviamo anche solo un trattino, non hai ancora vinto
+            if (griglia[i][j] == '_') return 0;
         }
     }
-    return 1;                                         // Vittoria!
+    return 1;             // Vittoria!
 }
+
+
 int riga_e_completata(char griglia[MAX_DIM][MAX_DIM], int riga, int colonne) {
     int j;
     for (j = 0; j < colonne; j++) {
@@ -140,6 +172,7 @@ int riga_e_completata(char griglia[MAX_DIM][MAX_DIM], int riga, int colonne) {
         if (griglia[riga][j] == '_') {
             return 0;
         }
-    }                                                 // Se arrivo qui, non ho trovato buchi: la riga è completa
+    }
+                            // la riga è completa
     return 1;
 }
