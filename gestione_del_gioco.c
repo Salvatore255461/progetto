@@ -31,7 +31,6 @@ void gioca_partita(char *username) {
     inizializza_griglia(griglia_di_gioco);
 
     printf("\n--- PARTITA DI %s (Livello %d) ---\n", username, livello_difficolta);
-    printf("Sto caricando parole da %d lettere...\n", num_lettere_parola);
 
     char *matrice_parole[NUM_PAROLE];
     char *matrice_def[NUM_PAROLE];
