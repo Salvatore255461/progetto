@@ -6,6 +6,8 @@
 #define FILE_UTENTI "utenti.txt"
 #define FILE_TEMP "temp_utenti.txt"
 
+// --- FUNZIONI INTERNE ---
+
 int controlla_credenziali(char *user, char *pass) {
     FILE *fp = fopen(FILE_UTENTI, "r");
     char u_file[50], p_file[50];
@@ -40,7 +42,7 @@ int utente_esiste(char *user) {
     return 0;
 }
 
-void elimina_utente_fisico(char *username) {
+void elimina_utente_fisico(char *username) {                    // Funzione di eliminazione
     FILE *fp_lettura = fopen(FILE_UTENTI, "r");
     FILE *fp_scrittura = fopen(FILE_TEMP, "w");
 
@@ -67,14 +69,13 @@ void elimina_utente_fisico(char *username) {
     if (eliminato) {
         remove(FILE_UTENTI);
         rename(FILE_TEMP, FILE_UTENTI);
-        printf("\n>> Utente '%s' eliminato con successo!\n", username);
+        printf("\n>> Account '%s' eliminato definitivamente!\n", username);
     } else {
         remove(FILE_TEMP);
-        printf("\n>> Errore: Utente non trovato.\n");
     }
 }
 
-int registra_utente(char *user, char *pass) {            // Ora restituisce int (1 = OK, 0 = Errore)
+int registra_utente(char *user, char *pass) {
     if (utente_esiste(user)) {
         printf("\n>> ERRORE: L'username '%s' e' gia' in uso! Scegline un altro.\n", user);
         printf("Premi INVIO per continuare...");
@@ -87,10 +88,10 @@ int registra_utente(char *user, char *pass) {            // Ora restituisce int 
         fprintf(fp, "%s %s 0\n", user, pass);
         fclose(fp);
         printf("Registrazione avvenuta con successo! Punteggio iniziale: 0\n");
-        return 1; // Successo
+        return 1;
     } else {
         printf("Errore salvataggio utente.\n");
-        return 0; // Fallimento
+        return 0;
     }
 }
 
@@ -99,12 +100,10 @@ int registra_utente(char *user, char *pass) {            // Ora restituisce int 
 int menu_autenticazione(char *username_buffer) {
     int scelta;
     char password[50];
-    char temp_user[50];
 
     printf("\n=== AREA UTENTE ===\n");
     printf("1. Login (Accedi e Gioca)\n");
     printf("2. Registrazione (Nuovo utente)\n");
-    printf("3. Elimina Account\n");
     printf("0. Indietro\n");
     printf("Scelta: ");
 
@@ -115,7 +114,6 @@ int menu_autenticazione(char *username_buffer) {
 
     if (scelta == 0) return 0;
 
-    // CASO 1: LOGIN 
     if (scelta == 1) {
         printf("\nInserisci Username: ");
         scanf("%s", username_buffer);
@@ -132,49 +130,53 @@ int menu_autenticazione(char *username_buffer) {
             return 0;
         }
     }
-    // CASO 2: REGISTRAZIONE
     else if (scelta == 2) {
         printf("\n(Nuovo) Username: ");
         scanf("%s", username_buffer);
         printf("(Nuova) Password: ");
         scanf("%s", password);
-        
-        if (registra_utente(username_buffer, password) == 1) {                         // Se la registrazione va a buon fine (restituisce 1)...
+
+        if (registra_utente(username_buffer, password) == 1) {
             printf("\n>> Accesso automatico effettuato come %s...\n", username_buffer);
-            return 1;                                                                 // ritorniamo 1 così il Main fa partire subito il gioco!
+            return 1;
         } else {
-            return 0;                                                                 // Altrimenti torniamo al menu
+            return 0;
         }
     }
-    // CASO 3: ELIMINAZIONE UTENTE
-    else if (scelta == 3) {
-        printf("\n--- ELIMINAZIONE ACCOUNT ---\n");
-        printf("Inserisci Username da eliminare: ");
-        scanf("%s", temp_user);
-        printf("Inserisci Password per conferma: ");
-        scanf("%s", password);
 
-        if (controlla_credenziali(temp_user, password)) {
-            char conferma;
-            printf("Sei SICURO di voler eliminare '%s'? (s/n): ", temp_user);
-            while(getchar() != '\n');
-            scanf("%c", &conferma);
+    return 0;
+}
 
-            if (conferma == 's' || conferma == 'S') {
-                elimina_utente_fisico(temp_user);
-            } else {
-                printf("Operazione annullata.\n");
-            }
+// Funzione che viene chiamata dal Main SOLO se l'utente è loggato
+int procedura_eliminazione_account(char *username_loggato) {
+    char password[50];
+    char conferma;
+
+    printf("\n--- ELIMINAZIONE ACCOUNT: %s ---\n", username_loggato);
+    printf("Per sicurezza, conferma la tua Password: ");
+    scanf("%s", password);
+
+    // Controlliamo se la password corrisponde all'utente loggato
+    if (controlla_credenziali(username_loggato, password)) {
+
+        printf("ATTENZIONE: L'operazione e' irreversibile.\n");
+        printf("Sei SICURO di voler eliminare il tuo account? (s/n): ");
+        while(getchar() != '\n'); // Pulisci buffer
+        scanf("%c", &conferma);
+
+        if (conferma == 's' || conferma == 'S') {
+            elimina_utente_fisico(username_loggato);
+            return 1; // Restituisce 1 = Eliminazione avvenuta
         } else {
-            printf("\n>> Errore: Credenziali errate. Impossibile eliminare.\n");
+            printf("Operazione annullata.\n");
+            return 0;
         }
-
+    } else {
+        printf("\n>> Password errata. Impossibile eliminare l'account.\n");
         printf("Premi INVIO per continuare...");
         while(getchar() != '\n'); getchar();
         return 0;
     }
-
-    return 0;
 }
 
 void aggiorna_punteggio(char *username, int punti_da_aggiungere) {
