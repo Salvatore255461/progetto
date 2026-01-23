@@ -6,7 +6,7 @@
 #define FILE_UTENTI "utenti.txt"
 #define FILE_TEMP "temp_utenti.txt"
 
-int controlla_credenziali(char *user, char *pass) {              // Controlla se user e pass corrispondono
+int controlla_credenziali(char *user, char *pass) {
     FILE *fp = fopen(FILE_UTENTI, "r");
     char u_file[50], p_file[50];
     int score_file;
@@ -23,24 +23,24 @@ int controlla_credenziali(char *user, char *pass) {              // Controlla se
     return 0;
 }
 
-int utente_esiste(char *user) {                  // Controlla se un nome utente è già presente nel file
+int utente_esiste(char *user) {
     FILE *fp = fopen(FILE_UTENTI, "r");
     char u_file[50], p_file[50];
     int score_file;
 
-    if (fp == NULL) return 0; // Se il file non esiste, l'utente non esiste
+    if (fp == NULL) return 0;
 
     while (fscanf(fp, "%s %s %d", u_file, p_file, &score_file) != EOF) {
         if (strcmp(user, u_file) == 0) {
             fclose(fp);
-            return 1; // Trovato! Esiste già.
+            return 1;
         }
     }
     fclose(fp);
-    return 0; // Non trovato
+    return 0;
 }
 
-void elimina_utente_fisico(char *username) {              // Funzione per eliminare l'utente dal file
+void elimina_utente_fisico(char *username) {
     FILE *fp_lettura = fopen(FILE_UTENTI, "r");
     FILE *fp_scrittura = fopen(FILE_TEMP, "w");
 
@@ -53,9 +53,9 @@ void elimina_utente_fisico(char *username) {              // Funzione per elimin
         return;
     }
 
-    while (fscanf(fp_lettura, "%s %s %d", u, p, &score) != EOF) {        // Copiamo tutto tranne l'utente da eliminare
+    while (fscanf(fp_lettura, "%s %s %d", u, p, &score) != EOF) {
         if (strcmp(u, username) == 0) {
-            eliminato = 1; // Lo saltiamo (non lo scriviamo nel nuovo file)
+            eliminato = 1;
         } else {
             fprintf(fp_scrittura, "%s %s %d\n", u, p, score);
         }
@@ -74,37 +74,37 @@ void elimina_utente_fisico(char *username) {              // Funzione per elimin
     }
 }
 
-void registra_utente(char *user, char *pass) {
-    // 1. Controllo preliminare se l'utente esiste già
+int registra_utente(char *user, char *pass) {            // Ora restituisce int (1 = OK, 0 = Errore)
     if (utente_esiste(user)) {
         printf("\n>> ERRORE: L'username '%s' e' gia' in uso! Scegline un altro.\n", user);
         printf("Premi INVIO per continuare...");
         while(getchar() != '\n'); getchar();
-        return;
+        return 0;
     }
 
-    FILE *fp = fopen(FILE_UTENTI, "a");        // 2. Se non esiste, procediamo con la registrazione
+    FILE *fp = fopen(FILE_UTENTI, "a");
     if (fp != NULL) {
         fprintf(fp, "%s %s 0\n", user, pass);
         fclose(fp);
         printf("Registrazione avvenuta con successo! Punteggio iniziale: 0\n");
-        // Piccola pausa per leggere il messaggio
-        printf("Premi INVIO per continuare...");
-        while(getchar() != '\n'); getchar();
+        return 1; // Successo
     } else {
         printf("Errore salvataggio utente.\n");
+        return 0; // Fallimento
     }
 }
+
+// --- FUNZIONI PUBBLICHE ---
 
 int menu_autenticazione(char *username_buffer) {
     int scelta;
     char password[50];
-    char temp_user[50]; // Buffer temporaneo per l'eliminazione
+    char temp_user[50];
 
-    printf("=== AREA UTENTE ===\n");
+    printf("\n=== AREA UTENTE ===\n");
     printf("1. Login (Accedi e Gioca)\n");
     printf("2. Registrazione (Nuovo utente)\n");
-    printf("3. Elimina Account\n"); // Nuova opzione
+    printf("3. Elimina Account\n");
     printf("0. Indietro\n");
     printf("Scelta: ");
 
@@ -115,7 +115,7 @@ int menu_autenticazione(char *username_buffer) {
 
     if (scelta == 0) return 0;
 
-    // --- CASO 1: LOGIN ---
+    // CASO 1: LOGIN 
     if (scelta == 1) {
         printf("\nInserisci Username: ");
         scanf("%s", username_buffer);
@@ -132,19 +132,21 @@ int menu_autenticazione(char *username_buffer) {
             return 0;
         }
     }
-    // --- CASO 2: REGISTRAZIONE ---
+    // CASO 2: REGISTRAZIONE
     else if (scelta == 2) {
         printf("\n(Nuovo) Username: ");
         scanf("%s", username_buffer);
         printf("(Nuova) Password: ");
         scanf("%s", password);
-
-        registra_utente(username_buffer, password);
-        // Dopo la registrazione torniamo al menu precedente per sicurezza
-        // (o puoi ritornare 1 se vuoi loggarlo subito, ma qui meglio fargli fare il login)
-        return 0;
+        
+        if (registra_utente(username_buffer, password) == 1) {                         // Se la registrazione va a buon fine (restituisce 1)...
+            printf("\n>> Accesso automatico effettuato come %s...\n", username_buffer);
+            return 1;                                                                 // ritorniamo 1 così il Main fa partire subito il gioco!
+        } else {
+            return 0;                                                                 // Altrimenti torniamo al menu
+        }
     }
-    // --- CASO 3: ELIMINAZIONE UTENTE ---
+    // CASO 3: ELIMINAZIONE UTENTE
     else if (scelta == 3) {
         printf("\n--- ELIMINAZIONE ACCOUNT ---\n");
         printf("Inserisci Username da eliminare: ");
@@ -152,10 +154,10 @@ int menu_autenticazione(char *username_buffer) {
         printf("Inserisci Password per conferma: ");
         scanf("%s", password);
 
-        if (controlla_credenziali(temp_user, password)) {          // Per sicurezza controlliamo che le credenziali siano giuste prima di eliminare
+        if (controlla_credenziali(temp_user, password)) {
             char conferma;
             printf("Sei SICURO di voler eliminare '%s'? (s/n): ", temp_user);
-            while(getchar() != '\n'); // Pulizia buffer
+            while(getchar() != '\n');
             scanf("%c", &conferma);
 
             if (conferma == 's' || conferma == 'S') {
@@ -206,3 +208,4 @@ void aggiorna_punteggio(char *username, int punti_da_aggiungere) {
         remove(FILE_TEMP);
     }
 }
+
