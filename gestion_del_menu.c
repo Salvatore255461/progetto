@@ -13,18 +13,17 @@ int mostra_menu_principale(int utente_loggato, char *nome_utente) {
     printf("=================================\n");
 
     if (utente_loggato == 0) {
-        // CASO A: Nessuno loggato
         printf("1. Accedi / Registrati e GIOCA\n");
     } else {
-        // CASO B: Utente loggato
         printf("1. GIOCA (Utente: %s)\n", nome_utente);
     }
 
     printf("2. Regolamento\n");
     printf("3. Classifica\n");
 
-    if (utente_loggato == 1) {                        // Mostriamo questa opzione SOLO se sei loggato
+    if (utente_loggato == 1) {
         printf("4. Logout / Cambia Utente\n");
+        printf("5. ELIMINA il tuo Account\n");            // NUOVA OPZIONE
     }
 
     printf("0. Esci\n");
@@ -41,9 +40,9 @@ int mostra_menu_principale(int utente_loggato, char *nome_utente) {
 int scegli_difficolta() {
     int liv;
     printf("\n=== SCEGLI LA DIFFICOLTA' ===\n");
-    printf("1. FACILE    (Meta' lettere visibili) [Vittoria: +10 pt]\n");
-    printf("2. NORMALE   (3 lettere visibili)     [Vittoria: +15 pt]\n");
-    printf("3. DIFFICILE (Griglia vuota)          [Vittoria: +20 pt]\n");
+    printf("1. FACILE      [Vittoria: +10 pt]\n");
+    printf("2. NORMALE     [Vittoria: +15 pt]\n");
+    printf("3. DIFFICILE   [Vittoria: +20 pt]\n");
     printf("-----------------------------\n");
     printf("Scelta: ");
 
@@ -68,7 +67,4 @@ void visualizza_regolamento() {
         }
         fclose(fp);
     }
-    printf("\n\nPremi INVIO per tornare al menu...");
-    fflush(stdin); getchar();
-    if (getchar() != '\n');
 }
