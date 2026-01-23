@@ -14,23 +14,24 @@
 #define LUNGHEZZA_MAX_DEF 200
 
 void gioca_partita(char *username) {
-    int i, k;
+    int k;
     int gioco_in_corso = 1;
     int riga_utente;
     char input_utente[100];
     int livello_difficolta;
-
-    int vite = 3;                                // introduzione variabile per le vite
+    int vite = 3;
 
     srand(time(NULL));
-    
-    livello_difficolta = scegli_difficolta();        // funzione per scelta della difficoltà
 
-    int num_lettere_parola = (rand() % 4) + 6;        // generazione del numero casuale per matrice
+    livello_difficolta = scegli_difficolta();
+
+    // Setup
+    int num_lettere_parola = (rand() % 4) + 6;
     char griglia_di_gioco[MAX_DIM][MAX_DIM];
     inizializza_griglia(griglia_di_gioco);
 
     printf("\n--- PARTITA DI %s (Livello %d) ---\n", username, livello_difficolta);
+    printf("Sto caricando parole da %d lettere...\n", num_lettere_parola);
 
     char *matrice_parole[NUM_PAROLE];
     char *matrice_def[NUM_PAROLE];
@@ -48,22 +49,20 @@ void gioca_partita(char *username) {
     riempi_griglia_con_parole(griglia_di_gioco, matrice_parole, parole_trovate, num_lettere_parola);
     applica_difficolta_griglia(griglia_di_gioco, parole_trovate, num_lettere_parola, livello_difficolta);
 
-    // Loop di Gioco
+    // --- GAME LOOP ---
     while (gioco_in_corso) {
-        printf("\n\n========================================\n");
-        printf(" VITE RIMASTE: %d/3 ", vite);                        // le vite vengono stampate a vdideo
-        if (vite == 3) printf("(***)\n");
-        else if (vite == 2) printf("(**)\n");
-        else if (vite == 1) printf("(*)\n");
-        // -----------------------------------
+
+        printf("\n\n");
         printf("========================================\n");
+        printf("  GIOCATORE: %s\n", username);
+        printf("  VITE RIMASTE: %d ", vite);
+        printf("[ ");
+        for(int v=0; v < vite; v++) printf("* ");
+        printf("]");
+        if (vite == 1) printf(" <--- ATTENZIONE!");
+        printf("\n========================================\n");
 
-        stampa_griglia(griglia_di_gioco, NUM_PAROLE, num_lettere_parola);
-
-        printf("\n--- DEFINIZIONI ---\n");
-        for(i = 0; i < parole_trovate; i++) {
-            printf("Riga %d: %s\n", i, matrice_def[i]);
-        }
+        stampa_griglia_con_definizioni(griglia_di_gioco, parole_trovate, num_lettere_parola, matrice_def);
 
         printf("\n(Scrivi -1 alla riga per tornare al menu)\n");
         printf("Inserisci numero RIGA: ");
@@ -96,26 +95,29 @@ void gioca_partita(char *username) {
                     if (risultato > 0) {
                         printf("\n>> BRAVO! Hai indovinato!\n");
                     } else {
-                        // --- NUOVO: Gestione errore e vite ---
                         vite--;
-                        printf("\n>> ERRORE! Hai perso una vita.\n");
+                        printf("\n>> ERRORE! Hai PERSO UNA VITA!\n");
 
+                        // --- GAME OVER ---
                         if (vite <= 0) {
                             printf("\n#######################################\n");
                             printf("#              GAME OVER              #\n");
                             printf("#    Hai esaurito le tue possibilita' #\n");
                             printf("#######################################\n");
 
-                            printf("\nPremi 1 e INVIO per uscire...");
-                            scanf("%d", &riga_utente);
-                            gioco_in_corso = 0;                             // Esce dal while
+                            printf("\nEcco com'era la griglia completa:\n\n");
+                            riempi_griglia_con_parole(griglia_di_gioco, matrice_parole, parole_trovate, num_lettere_parola);
+                            stampa_griglia_con_definizioni(griglia_di_gioco, parole_trovate, num_lettere_parola, matrice_def);
+
+                            // Uscita immediata
+                            gioco_in_corso = 0;
                         }
                     }
 
-                    // Controllo vittoria
+                    // --- VITTORIA ---
                     if (gioco_in_corso && controlla_vittoria(griglia_di_gioco, parole_trovate, num_lettere_parola)) {
                         printf("\n\n*** HAI VINTO LA PARTITA! ***\n");
-                        stampa_griglia(griglia_di_gioco, NUM_PAROLE, num_lettere_parola);
+                        stampa_griglia_con_definizioni(griglia_di_gioco, parole_trovate, num_lettere_parola, matrice_def);
 
                         int punti_vinti = 0;
                         if (livello_difficolta == 1) punti_vinti = 10;
@@ -125,8 +127,7 @@ void gioca_partita(char *username) {
                         printf("\n>> Hai guadagnato %d PUNTI!\n", punti_vinti);
                         aggiorna_punteggio(username, punti_vinti);
 
-                        printf("Premi 1 e INVIO per continuare...");
-                        scanf("%d", &riga_utente);
+                        // MODIFICA: Rimosso "Premi 1 per continuare". Uscita immediata.
                         gioco_in_corso = 0;
                     }
                 }
@@ -134,6 +135,10 @@ void gioca_partita(char *username) {
                 printf(">> Riga non valida.\n");
             }
         }
+    }
+
+    libera_matrici(matrice_parole, matrice_def, NUM_PAROLE);
+}
     }
 
     libera_matrici(matrice_parole, matrice_def, NUM_PAROLE);
