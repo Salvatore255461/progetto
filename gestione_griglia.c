@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h> // Serve per rand()
+#include <stdlib.h>
 #include "gestione_griglia.h"
 
-char mio_toupper(char c) {                            // Trasforma una lettera minuscola in maiuscola sottraendo 32 dal codice ASCII.
+// Trasforma una lettera minuscola in maiuscola sottraendo 32 dal codice ASCII.
+// Se è già maiuscola o è un simbolo, la lascia invariata.
+char mio_toupper(char c) {
     if (c >= 'a' && c <= 'z') {
         return c - 32;
     }
@@ -64,9 +66,8 @@ void applica_difficolta_griglia(char griglia[MAX_DIM][MAX_DIM], int righe, int c
 
     for (i = 0; i < righe; i++) {
 
-        // 1. Calcolo del numero di lettere da rivelare in base al tipo di difficoltà
+        // 1. CALCOLO MATEMATICO IN BASE AL LIVELLO
         if (livello == 1) {
-            // FACILE: Metà delle lettere (divisione intera approssima per difetto)
             lettere_da_mantenere = colonne / 2;
         }
         else if (livello == 2) {
@@ -74,7 +75,7 @@ void applica_difficolta_griglia(char griglia[MAX_DIM][MAX_DIM], int righe, int c
             lettere_da_mantenere = 3;
         }
         else {
-            // DIFFICILE:(tutto nascosto)
+            // DIFFICILE: 0 lettere (tutto nascosto)
             lettere_da_mantenere = 0;
         }
 
@@ -83,6 +84,7 @@ void applica_difficolta_griglia(char griglia[MAX_DIM][MAX_DIM], int righe, int c
         nascoste_finora = 0;
 
         // 2. CICLO PER NASCONDERE LE LETTERE
+        // Continuiamo a pescare posizioni a caso finché non ne abbiamo nascoste abbastanza
         while (nascoste_finora < lettere_da_nascondere) {
             indice_casuale = rand() % colonne; // Scegli una colonna a caso
 
@@ -94,6 +96,8 @@ void applica_difficolta_griglia(char griglia[MAX_DIM][MAX_DIM], int righe, int c
         }
     }
 }
+
+// --- LOGICA GIOCO (Senza librerie esterne) ---
 
 int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[], int riga, char *input) {
     // 1. Validazione
@@ -150,7 +154,7 @@ int gestisci_input_utente(char griglia[MAX_DIM][MAX_DIM], char *matrice_parole[]
         }
     }
 
-    return modifiche;         // Restituisce > 0 se abbiamo scoperto qualcosa
+    return modifiche; // Restituisce >0 se abbiamo scoperto qualcosa
 }
 
 int controlla_vittoria(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne) {
@@ -161,7 +165,7 @@ int controlla_vittoria(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne) {
             if (griglia[i][j] == '_') return 0;
         }
     }
-    return 1;             // Vittoria!
+    return 1; // Vittoria!
 }
 
 
@@ -173,6 +177,44 @@ int riga_e_completata(char griglia[MAX_DIM][MAX_DIM], int riga, int colonne) {
             return 0;
         }
     }
-                            // la riga è completa
+    // Se arrivo qui, non ho trovato buchi: la riga è completa
     return 1;
+}
+
+void stampa_griglia_con_definizioni(char griglia[MAX_DIM][MAX_DIM], int righe, int colonne, char *definizioni[]) {
+    int i, j;
+
+    // 1. Intestazione colonne (0 1 2 3...)
+    printf("    "); // Spazio iniziale per allineare con i numeri di riga
+    for (j = 0; j < colonne; j++) {
+        printf(" %d  ", j);
+    }
+    printf("\n");
+
+    // 2. Bordo Superiore Iniziale
+    printf("    +");
+    for (j = 0; j < colonne; j++) printf("---+");
+    printf("\n");
+
+    // 3. Ciclo per ogni riga
+    for (i = 0; i < righe; i++) {
+
+        // A. Numero di riga a sinistra
+        printf(" %2d |", i);
+
+        // B. Contenuto della riga (lettere o spazi)
+        for (j = 0; j < colonne; j++) {
+            printf(" %c |", griglia[i][j]);
+        }
+
+        // C. DEFINIZIONE (A fianco della riga)
+        // Stampiamo una freccina e poi la definizione corrispondente
+        printf("  --> %s", definizioni[i]);
+        printf("\n");
+
+        // D. Bordo inferiore della riga
+        printf("    +");
+        for (j = 0; j < colonne; j++) printf("---+");
+        printf("\n");
+    }
 }
