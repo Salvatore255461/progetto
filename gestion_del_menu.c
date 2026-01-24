@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "gestione_menu.h"
+#include "interfaccia.h"
 
 #define FILE_REGOLAMENTO "regolamento.txt"
 
@@ -9,7 +9,7 @@ int mostra_menu_principale(int utente_loggato, char *nome_utente) {
 
     printf("\n\n");
     printf("=================================\n");
-    printf("      PAROLE CROCIATE - MENU     \n");
+    printf("      QUIZ CULTURA - MENU        \n");
     printf("=================================\n");
 
     if (utente_loggato == 0) {
@@ -23,7 +23,7 @@ int mostra_menu_principale(int utente_loggato, char *nome_utente) {
 
     if (utente_loggato == 1) {
         printf("4. Logout / Cambia Utente\n");
-        printf("5. ELIMINA il tuo Account\n");            // NUOVA OPZIONE
+        printf("5. ELIMINA il tuo Account\n");
     }
 
     printf("0. Esci\n");
@@ -40,14 +40,15 @@ int mostra_menu_principale(int utente_loggato, char *nome_utente) {
 int scegli_difficolta() {
     int liv;
     printf("\n=== SCEGLI LA DIFFICOLTA' ===\n");
-    printf("1. FACILE      [Vittoria: +10 pt]\n");
-    printf("2. NORMALE     [Vittoria: +15 pt]\n");
-    printf("3. DIFFICILE   [Vittoria: +20 pt]\n");
+    printf("1. FACILE    (Meta' lettere visibili) [Vittoria: +10 pt]\n");
+    printf("2. NORMALE   (3 lettere visibili)     [Vittoria: +15 pt]\n");
+    printf("3. DIFFICILE (Griglia vuota)          [Vittoria: +20 pt]\n");
+    printf("0. Torna al Menu Principale\n"); // <--- NUOVA OPZIONE
     printf("-----------------------------\n");
     printf("Scelta: ");
 
-    while (scanf("%d", &liv) != 1 || liv < 1 || liv > 3) {
-        printf(">> Errore: Inserisci 1, 2 o 3: ");
+    while (scanf("%d", &liv) != 1 || liv < 0 || liv > 3) {
+        printf(">> Errore: Inserisci 0, 1, 2 o 3: ");
         while (getchar() != '\n');
     }
     return liv;
