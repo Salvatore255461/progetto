@@ -2,12 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "gestione_memoria_dinamica.h"
-#include "gestione_griglia.h"
-#include "gestione_file_di_testo.h"
-#include "gestione_del_gioco.h"
-#include "gestione_utenti.h"
-#include "gestione_menu.h"
+#include "interfaccia.h"
 
 #define NUM_PAROLE 10
 #define NOME_FILE "esempio_parole.txt"
@@ -25,13 +20,16 @@ void gioca_partita(char *username) {
 
     livello_difficolta = scegli_difficolta();
 
+    if (livello_difficolta == 0) {              // Se l'utente ha scelto 0, interrompiamo tutto e torniamo al menu principale
+        return;
+    }
+
     // Setup
     int num_lettere_parola = (rand() % 4) + 6;
     char griglia_di_gioco[MAX_DIM][MAX_DIM];
     inizializza_griglia(griglia_di_gioco);
 
     printf("\n--- PARTITA DI %s (Livello %d) ---\n", username, livello_difficolta);
-    printf("Sto caricando parole da %d lettere...\n", num_lettere_parola);
 
     char *matrice_parole[NUM_PAROLE];
     char *matrice_def[NUM_PAROLE];
@@ -127,7 +125,6 @@ void gioca_partita(char *username) {
                         printf("\n>> Hai guadagnato %d PUNTI!\n", punti_vinti);
                         aggiorna_punteggio(username, punti_vinti);
 
-                        // MODIFICA: Rimosso "Premi 1 per continuare". Uscita immediata.
                         gioco_in_corso = 0;
                     }
                 }
@@ -135,10 +132,6 @@ void gioca_partita(char *username) {
                 printf(">> Riga non valida.\n");
             }
         }
-    }
-
-    libera_matrici(matrice_parole, matrice_def, NUM_PAROLE);
-}
     }
 
     libera_matrici(matrice_parole, matrice_def, NUM_PAROLE);
