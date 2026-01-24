@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gestione_utenti.h"
+#include "interfaccia.h"
 
 #define FILE_UTENTI "utenti.txt"
 #define FILE_TEMP "temp_utenti.txt"
