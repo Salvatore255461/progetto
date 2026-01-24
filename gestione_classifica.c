@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gestione_classifica.h"
+#include "interfaccia.h"
 
 #define FILE_UTENTI "utenti.txt"
 
