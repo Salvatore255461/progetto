@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gestione_file_di_testo.h"
+#include "interfaccia.h"
 
 #define MAX_TENTATIVI 5000
 #define LUNGHEZZA_MAX_RIGA 200
