@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "gestione_griglia.h"
+#include "interfaccia.h"
 
 // Trasforma una lettera minuscola in maiuscola sottraendo 32 dal codice ASCII.
 // Se è già maiuscola o è un simbolo, la lascia invariata.
