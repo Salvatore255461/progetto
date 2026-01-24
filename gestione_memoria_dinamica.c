@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "gestione_memoria_dinamica.h"
+#include "interfaccia.h"
 
 int alloca_matrici(char *m_parole[], char *m_def[], int num_righe, int len_parola, int len_def) {
     int i;
